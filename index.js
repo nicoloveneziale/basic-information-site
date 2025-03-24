@@ -1,29 +1,39 @@
-var http = require("http");
-var fs = require("fs");
-const url = require("url");
+import fs from "fs";
+import http from "http";
 
-http
-  .createServer(async (req, res) => {
-    const url = url.parse(req.url, true);
+const server = http.createServer((req, res) => {
+  let path = "./pages/";
+  switch (req.url) {
+    case "/":
+      path += "index.html";
+      res.statusCode = 202;
+      break;
+    case "/about":
+      path += "about.html";
+      res.statusCode = 202;
 
-    let filename;
-    if (url.pathname === "/") {
-      filename = "./pages" + "/index.html";
-    } else {
-      filename = "./" + url.pathname;
+      break;
+    case "/contact-me":
+      path += "contact-me.html";
+      res.statusCode = 202;
+
+      break;
+    default:
+      path += "404.html";
+      res.statusCode = 404;
+
+      break;
+  }
+
+  res.setHeader("Content-Type", "text/html");
+  fs.readFile(path, (err, data) => {
+    if (err) {
+      console.log(err);
     }
+    res.end(data);
+  });
+});
 
-    fs.readFile(filename, function (err, data) {
-      if (err) {
-        res.writeHead(404, {
-          "Content-Type": "text/html",
-        });
-        return res.end();
-      } else {
-        res.writeHead(200, { "Content-Type": "text/html" });
-        res.write(data);
-        return res.end();
-      }
-    });
-  })
-  .listen(8080);
+server.listen(3000, () => {
+  console.log("server is running on port 3000");
+});
